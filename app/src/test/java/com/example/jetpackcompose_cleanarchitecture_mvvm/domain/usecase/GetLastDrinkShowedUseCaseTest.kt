@@ -15,7 +15,7 @@ class GetLastDrinkShowedUseCaseTest {
     // 1. Mockeamos el Repositorio
     private val repository: DrinkRepository = mockk()
 
-    // 2. El UseCase bajo prueba
+    // 2. El UseCase
     private lateinit var getLastDrinkShowedUseCase: GetLastDrinkShowedUseCase
 
     @Before

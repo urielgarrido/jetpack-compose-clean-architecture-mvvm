@@ -23,7 +23,7 @@ class GetRandomDrinkUseCaseTest {
 
     @Test
     fun `invoke calls repository and returns a drink`() = runTest {
-        // GIVEN (Dado un escenario)
+        // GIVEN (Dado un drink)
         val expectedDrink = Drink(name = "Mojito", imageUrl = "url", category = "Cocktail", ingredients = listOf(Pair("lime","1"), Pair("sugar","2")), instructions = "Mix")
 
         // Cuando el repo sea llamado, devuelve esto

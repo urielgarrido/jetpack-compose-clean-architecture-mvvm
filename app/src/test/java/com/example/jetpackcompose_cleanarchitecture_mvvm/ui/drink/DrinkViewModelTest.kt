@@ -26,7 +26,7 @@ class DrinkViewModelTest {
     fun `getRandomDrink emits Loading and then Success when API calls succeeds`() = runTest {
         // GIVEN
         val mockDrink = Drink(name = "Gin Tonic", imageUrl = "img", category = "Bar", ingredients = listOf(Pair("lime","1")), instructions = "Easy")
-        // Importante: Agrega un pequeño delay simulado al UseCase para que nos dé tiempo de observar el estado de Loading
+        // Agrego un pequeño delay simulando al UseCase para que me dé tiempo de observar el estado de Loading
         coEvery { getRandomDrinkUseCase() } coAnswers {
             kotlinx.coroutines.delay(10) // Simula red
             mockDrink
@@ -38,20 +38,20 @@ class DrinkViewModelTest {
         // THEN
         viewModel.state.test {
             // 1. Estado inicial o Loading (dependiendo de la velocidad de ejecución)
-            // Como pusimos un delay en el mock, el primer estado será Loading = true casi seguro
+            // Como hay un delay en el mock, el primer estado será Loading = true casi seguro
             // O el estado inicial default y luego Loading.
 
             var state = awaitItem()
 
-            // Si el primer estado es el default (loading=false, drink=null), esperamos el siguiente
+            // Si el primer estado es el default (loading=false, drink=null), espero el siguiente
             if (!state.isLoading && state.drink == null) {
                 state = awaitItem() // Debería ser Loading
             }
 
-            // Verificamos Loading
+            // Verifico que el estado sea Loading
             assertThat(state.isLoading).isTrue()
 
-            // 2. Esperamos el resultado final (después del delay del mock)
+            // 2. Espero el resultado final (después del delay del mock)
             val successState = awaitItem()
             assertThat(successState.isLoading).isFalse()
             assertThat(successState.drink).isEqualTo(mockDrink)
@@ -82,7 +82,7 @@ class DrinkViewModelTest {
 
             assertThat(fallbackState.isLoading).isFalse()
             assertThat(fallbackState.drink).isEqualTo(localDrink)
-            // Según tu lógica, si carga de local por fallo de red, tal vez pongas un mensaje en 'error'
+            // Si carga del local por fallo de red, pongo un mensaje en 'error'
             assertThat(fallbackState.error).contains("Sin conexión")
 
             cancelAndIgnoreRemainingEvents()
