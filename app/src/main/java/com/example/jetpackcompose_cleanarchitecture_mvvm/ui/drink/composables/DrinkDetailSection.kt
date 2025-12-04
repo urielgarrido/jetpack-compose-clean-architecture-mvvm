@@ -49,7 +49,7 @@ fun DrinkDetailsSection(
             )
 
             drink.ingredients.forEach { (ingredient, measure) ->
-                IngredientRow(ingredient = ingredient, measure = measure)
+                IngredientRow(ingredient = ingredient.trim(), measure = measure.trim())
             }
 
             Spacer(modifier = Modifier.height(24.dp))
