@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ingredients_title">Ingredients</string>
+    <string name="instructions_title">Instructions</string>
+    <string name="drink_image_content_description">Photo of %s</string>
+    <string name="load_another_random_drink">Load another random drink</string>
+</resources>

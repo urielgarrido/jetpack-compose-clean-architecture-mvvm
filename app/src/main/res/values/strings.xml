@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">JetpackCompose-CleanArchitecture-MVVM</string>
+    <string name="app_name" translatable="false">Barman app</string>
+    <string name="ingredients_title">Ingredientes</string>
+    <string name="instructions_title">Instrucciones</string>
+    <string name="drink_image_content_description">Foto de %s</string>
+    <string name="load_another_random_drink">Cargar otra bebida aleatoria</string>
 </resources>

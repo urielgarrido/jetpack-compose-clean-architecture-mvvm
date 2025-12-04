@@ -9,8 +9,6 @@ data class DrinkEntity(
     val id: String = "SINGLE_DRINK_ID",
     val name: String,
     val category: String,
-    val alcoholic: String,
-    val glass: String,
     val instructions: String,
     val imageUrl: String,
     val ingredients: List<Pair<String, String>>
