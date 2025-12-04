@@ -1,6 +1,7 @@
 package com.example.jetpackcompose_cleanarchitecture_mvvm.data.mappers
 
 import com.example.jetpackcompose_cleanarchitecture_mvvm.data.local.entities.DrinkEntity
+import com.example.jetpackcompose_cleanarchitecture_mvvm.data.local.entities.SINGLE_DRINK_ID
 import com.example.jetpackcompose_cleanarchitecture_mvvm.data.remote.dto.DrinkDetailDto
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.model.Drink
 
@@ -80,7 +81,7 @@ fun DrinkDetailDto.toDomain(): Drink {
 
 fun DrinkDetailDto.toEntity(): DrinkEntity {
     return DrinkEntity(
-        id = "SINGLE_DRINK_ID",
+        id = SINGLE_DRINK_ID,
         name = strDrink.orEmpty(),
         category = strCategory.orEmpty(),
         instructions = strInstructions.orEmpty(),

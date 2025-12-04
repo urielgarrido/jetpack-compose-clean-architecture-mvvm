@@ -2,8 +2,10 @@ package com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.jetpackcompose_cleanarchitecture_mvvm.R
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetLastDrinkShowedUseCase
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetRandomDrinkUseCase
+import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.util.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +17,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class DrinkViewModel @Inject constructor(
     private val getRandomDrinkUseCase: GetRandomDrinkUseCase,
-    private val getLastDrinkShowedUseCase: GetLastDrinkShowedUseCase
+    private val getLastDrinkShowedUseCase: GetLastDrinkShowedUseCase,
+    private val resourceProvider: ResourceProvider
 ): ViewModel() {
 
     private val _state = MutableStateFlow(DrinkState())
@@ -36,7 +39,7 @@ class DrinkViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
-                loadLastDrinkCached(errorMessage = "Sin conexión. Mostrando última bebida vista.")
+                loadLastDrinkCached(errorMessage = resourceProvider.getString(R.string.error_no_connection_cached))
             }
         }
     }
@@ -54,13 +57,13 @@ class DrinkViewModel @Inject constructor(
             } else {
                 _state.value = DrinkState(
                     isLoading = false,
-                    error = "No hay conexión y no hay datos guardados."
+                    error = resourceProvider.getString(R.string.error_no_connection_no_data)
                 )
             }
         } catch (e: Exception) {
             _state.value = DrinkState(
                 isLoading = false,
-                error = "Error inesperado: ${e.message}"
+                error = resourceProvider.getString(R.string.error_unexpected, e.message.toString())
             )
         }
     }
