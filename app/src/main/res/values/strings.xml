@@ -7,5 +7,6 @@
     <string name="error_no_connection_cached">Sin conexión. Mostrando última bebida vista.</string>
     <string name="error_no_connection_no_data">No hay conexión y no hay datos guardados.</string>
     <string name="error_unexpected">Error inesperado: %s</string>
+    <string name="pane_title_error_message">Mensaje de error</string>
 
 </resources>

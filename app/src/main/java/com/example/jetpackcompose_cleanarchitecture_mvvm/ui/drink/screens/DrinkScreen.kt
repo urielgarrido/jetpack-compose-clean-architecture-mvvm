@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.jetpackcompose_cleanarchitecture_mvvm.R
 import com.example.jetpackcompose_cleanarchitecture_mvvm.ui.composables.ErrorBanner
 import com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink.DrinkViewModel
+import com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink.ErrorState
 import com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink.composables.DrinkDetailsSection
 import com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink.composables.HeaderImage
 
@@ -67,13 +68,29 @@ fun DrinkScreen(
                 }
             } else if (drinkUIState.drink != null) {
 
-                drinkUIState.error?.let { errorMsg ->
-                    ErrorBanner(errorMessage = errorMsg)
+                drinkUIState.error?.let { errorState ->
+                    when (errorState) {
+                        ErrorState.NoConnectionWithData -> ErrorBanner(errorMessage = stringResource(R.string.error_no_connection_cached))
+                        else -> Unit
+                    }
                 }
 
                 HeaderImage(drinkUIState)
 
                 DrinkDetailsSection(drinkUIState)
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    when (val errorState = drinkUIState.error) {
+                        ErrorState.NoConnectionWithoutData -> ErrorBanner(errorMessage = stringResource(R.string.error_no_connection_no_data))
+                        is ErrorState.Unexpected -> ErrorBanner(errorMessage = stringResource(R.string.error_unexpected, errorState.message))
+                        else -> Unit
+                    }
+                }
             }
         }
     }

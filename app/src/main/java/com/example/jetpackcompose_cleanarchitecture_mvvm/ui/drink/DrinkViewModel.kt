@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.jetpackcompose_cleanarchitecture_mvvm.R
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetLastDrinkShowedUseCase
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetRandomDrinkUseCase
-import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.util.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -17,8 +16,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class DrinkViewModel @Inject constructor(
     private val getRandomDrinkUseCase: GetRandomDrinkUseCase,
-    private val getLastDrinkShowedUseCase: GetLastDrinkShowedUseCase,
-    private val resourceProvider: ResourceProvider
+    private val getLastDrinkShowedUseCase: GetLastDrinkShowedUseCase
 ): ViewModel() {
 
     private val _state = MutableStateFlow(DrinkState())
@@ -39,12 +37,12 @@ class DrinkViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
-                loadLastDrinkCached(errorMessage = resourceProvider.getString(R.string.error_no_connection_cached))
+                loadLastDrinkCached()
             }
         }
     }
 
-    private suspend fun loadLastDrinkCached(errorMessage: String) {
+    private suspend fun loadLastDrinkCached() {
         try {
             val localDrink = getLastDrinkShowedUseCase()
 
@@ -52,18 +50,18 @@ class DrinkViewModel @Inject constructor(
                 _state.value = DrinkState(
                     isLoading = false,
                     drink = localDrink,
-                    error = errorMessage
+                    error = ErrorState.NoConnectionWithData
                 )
             } else {
                 _state.value = DrinkState(
                     isLoading = false,
-                    error = resourceProvider.getString(R.string.error_no_connection_no_data)
+                    error = ErrorState.NoConnectionWithoutData
                 )
             }
         } catch (e: Exception) {
             _state.value = DrinkState(
                 isLoading = false,
-                error = resourceProvider.getString(R.string.error_unexpected, e.message.toString())
+                error = ErrorState.Unexpected(e.message.toString())
             )
         }
     }

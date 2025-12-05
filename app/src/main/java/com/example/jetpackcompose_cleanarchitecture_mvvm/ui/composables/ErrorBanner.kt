@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.paneTitle
@@ -16,19 +17,22 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.jetpackcompose_cleanarchitecture_mvvm.R
 
 @Composable
 fun ErrorBanner(
     errorMessage: String,
     modifier: Modifier = Modifier
 ) {
+    val paneTitleSurface = stringResource(R.string.pane_title_error_message)
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp)
             .semantics {
                 liveRegion = LiveRegionMode.Polite
-                paneTitle = "Error Message"
+                paneTitle = paneTitleSurface
             },
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.errorContainer,
