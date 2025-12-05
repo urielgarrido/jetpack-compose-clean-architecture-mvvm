@@ -1,6 +1,7 @@
 package com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink.composables
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,13 +11,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +35,8 @@ import kotlin.text.uppercase
 fun HeaderImage(
     drinkUIState: DrinkState
 ) {
+    val imageFocusRequester = remember { FocusRequester() }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,13 +45,19 @@ fun HeaderImage(
         val drinkName = drinkUIState.drink?.name?.trim().orEmpty()
 
         AsyncImage(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .focusRequester(imageFocusRequester)
+                .focusable(),
             model = drinkUIState.drink?.imageUrl,
             contentDescription = stringResource(id = R.string.drink_image_content_description, drinkName),
             contentScale = ContentScale.FillBounds,
             alignment = Alignment.Center,
             placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceVariant),
-            error = ColorPainter(Color.Gray)
+            error = ColorPainter(Color.Gray),
+            onSuccess = {
+                imageFocusRequester.requestFocus()
+            }
         )
 
         Box(
