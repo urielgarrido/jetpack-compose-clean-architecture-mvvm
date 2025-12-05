@@ -84,7 +84,7 @@ fun DrinkDetailDto.toEntity(): DrinkEntity {
         id = SINGLE_DRINK_ID,
         name = strDrink.orEmpty(),
         category = strCategory.orEmpty(),
-        instructions = strInstructions.orEmpty(),
+        instructions = strInstructionsES ?: strInstructions.orEmpty(),
         imageUrl = strDrinkThumb.orEmpty(),
         ingredients = setIngredientsList(this)
     )
