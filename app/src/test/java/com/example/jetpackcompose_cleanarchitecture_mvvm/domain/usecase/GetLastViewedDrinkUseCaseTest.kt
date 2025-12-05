@@ -10,17 +10,17 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
-class GetLastDrinkShowedUseCaseTest {
+class GetLastViewedDrinkUseCaseTest {
 
     // 1. Mockeamos el Repositorio
     private val repository: DrinkRepository = mockk()
 
     // 2. El UseCase
-    private lateinit var getLastDrinkShowedUseCase: GetLastDrinkShowedUseCase
+    private lateinit var getLastViewedDrinkUseCase: GetLastViewedDrinkUseCase
 
     @Before
     fun setUp() {
-        getLastDrinkShowedUseCase = GetLastDrinkShowedUseCase(repository)
+        getLastViewedDrinkUseCase = GetLastViewedDrinkUseCase(repository)
     }
 
     @Test
@@ -33,38 +33,38 @@ class GetLastDrinkShowedUseCaseTest {
             imageUrl = "url_cached",
             ingredients = emptyList()
         )
-        coEvery { repository.getLastDrinkShowed() } returns cachedDrink
+        coEvery { repository.getLastViewedDrink() } returns cachedDrink
 
         // WHEN (Cuando invocamos el caso de uso)
-        val result = getLastDrinkShowedUseCase()
+        val result = getLastViewedDrinkUseCase()
 
         // THEN (Entonces el resultado debe ser esa bebida)
         assertThat(result).isEqualTo(cachedDrink)
 
         // Verificamos que se llamó a la fun correcta del repositorio
-        coVerify(exactly = 1) { repository.getLastDrinkShowed() }
+        coVerify(exactly = 1) { repository.getLastViewedDrink() }
     }
 
     @Test
     fun `invoke returns null when no cached data exists`() = runTest {
         // GIVEN (El repositorio no tiene nada guardado)
-        coEvery { repository.getLastDrinkShowed() } returns null
+        coEvery { repository.getLastViewedDrink() } returns null
 
         // WHEN
-        val result = getLastDrinkShowedUseCase()
+        val result = getLastViewedDrinkUseCase()
 
         // THEN
         assertThat(result).isNull()
 
-        coVerify(exactly = 1) { repository.getLastDrinkShowed() }
+        coVerify(exactly = 1) { repository.getLastViewedDrink() }
     }
 
     @Test(expected = Exception::class)
     fun `invoke throws exception when repository fails`() = runTest {
         // GIVEN (El repositorio falla al leer la DB)
-        coEvery { repository.getLastDrinkShowed() } throws Exception("Database Error")
+        coEvery { repository.getLastViewedDrink() } throws Exception("Database Error")
 
         // WHEN (Debería lanzar la excepción hacia arriba)
-        getLastDrinkShowedUseCase()
+        getLastViewedDrinkUseCase()
     }
 }

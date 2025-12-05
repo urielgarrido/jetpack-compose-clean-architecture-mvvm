@@ -12,6 +12,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +34,12 @@ fun DrinkScreen(
 ) {
     val scrollState = rememberScrollState()
     val drinkUIState by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        if (drinkUIState.drink == null) {
+            viewModel.getRandomDrink()
+        }
+    }
 
     Scaffold(
         modifier = modifier,

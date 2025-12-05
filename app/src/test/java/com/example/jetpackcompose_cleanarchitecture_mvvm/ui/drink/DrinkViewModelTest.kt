@@ -2,12 +2,13 @@ package com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink
 
 import app.cash.turbine.test
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.model.Drink
-import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetLastDrinkShowedUseCase
+import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetLastViewedDrinkUseCase
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetRandomDrinkUseCase
 import com.example.jetpackcompose_cleanarchitecture_mvvm.util.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
@@ -18,72 +19,113 @@ class DrinkViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val getRandomDrinkUseCase: GetRandomDrinkUseCase = mockk()
-    private val getLastDrinkShowedUseCase: GetLastDrinkShowedUseCase = mockk()
+    private val getLastViewedDrinkUseCase: GetLastViewedDrinkUseCase = mockk()
 
     private lateinit var viewModel: DrinkViewModel
 
     @Test
     fun `getRandomDrink emits Loading and then Success when API calls succeeds`() = runTest {
         // GIVEN
-        val mockDrink = Drink(name = "Gin Tonic", imageUrl = "img", category = "Bar", ingredients = listOf(Pair("lime","1")), instructions = "Easy")
-        // Agrego un pequeño delay simulando al UseCase para que me dé tiempo de observar el estado de Loading
+        val mockDrink = Drink(name = "Gin Tonic", imageUrl = "img", category = "Bar", ingredients = listOf(Pair("lime", "1")), instructions = "Easy")
+
+        // Simulamos un pequeño delay para asegurar que vemos el estado de Loading
         coEvery { getRandomDrinkUseCase() } coAnswers {
-            kotlinx.coroutines.delay(10) // Simula red
+            delay(10)
             mockDrink
         }
 
-        // WHEN
-        viewModel = DrinkViewModel(getRandomDrinkUseCase, getLastDrinkShowedUseCase)
+        viewModel = DrinkViewModel(getRandomDrinkUseCase, getLastViewedDrinkUseCase)
 
-        // THEN
+        // WHEN & THEN
         viewModel.state.test {
-            // 1. Estado inicial o Loading (dependiendo de la velocidad de ejecución)
-            // Como hay un delay en el mock, el primer estado será Loading = true casi seguro
-            // O el estado inicial default y luego Loading.
+            // 1. Estado Inicial
+            val initialState = awaitItem()
+            assertThat(initialState.isLoading).isFalse()
+            assertThat(initialState.drink).isNull()
 
-            var state = awaitItem()
+            // 2. Acción
+            viewModel.getRandomDrink()
 
-            // Si el primer estado es el default (loading=false, drink=null), espero el siguiente
-            if (!state.isLoading && state.drink == null) {
-                state = awaitItem() // Debería ser Loading
-            }
+            // 3. Estado Loading
+            val loadingState = awaitItem()
+            assertThat(loadingState.isLoading).isTrue()
 
-            // Verifico que el estado sea Loading
-            assertThat(state.isLoading).isTrue()
-
-            // 2. Espero el resultado final (después del delay del mock)
+            // 4. Estado de Éxito
             val successState = awaitItem()
             assertThat(successState.isLoading).isFalse()
             assertThat(successState.drink).isEqualTo(mockDrink)
+            assertThat(successState.error).isNull()
 
             cancelAndIgnoreRemainingEvents()
         }
     }
 
-
     @Test
     fun `getRandomDrink emits Error and tries Local when API fails`() = runTest {
         // GIVEN
-        // 1. API falla
-        coEvery { getRandomDrinkUseCase() } throws RuntimeException("No Internet")
+        // 1. API falla con DELAY
+        coEvery { getRandomDrinkUseCase() } coAnswers {
+            delay(10)
+            throw RuntimeException("No Internet")
+        }
+
         // 2. Local responde con éxito
-        val localDrink = Drink(name = "Old Fashioned", imageUrl = "loc", category = "Old", ingredients = listOf(Pair("lime","1"), Pair("sugar","2")), instructions = "Classic")
-        coEvery { getLastDrinkShowedUseCase() } returns localDrink
+        val localDrink = Drink(name = "Old Fashioned", imageUrl = "loc", category = "Old", ingredients = listOf(Pair("lime", "1")), instructions = "Classic")
+        coEvery { getLastViewedDrinkUseCase() } returns localDrink
 
-        // WHEN
-        viewModel = DrinkViewModel(getRandomDrinkUseCase, getLastDrinkShowedUseCase)
+        viewModel = DrinkViewModel(getRandomDrinkUseCase, getLastViewedDrinkUseCase)
 
-        // THEN
+        // WHEN & THEN
         viewModel.state.test {
-            awaitItem() // Estado inicial
+            // 1. Estado Inicial
+            awaitItem()
 
-            // Debería llegar el estado con la data local y quizás un mensaje de error/warning
+            // 2. Ejecutamos la acción
+            viewModel.getRandomDrink()
+
+            // 3. Estado Loading
+            val loadingState = awaitItem()
+            assertThat(loadingState.isLoading).isTrue()
+
+            // 4. Estado Final (Fallback a local)
             val fallbackState = awaitItem()
-
             assertThat(fallbackState.isLoading).isFalse()
             assertThat(fallbackState.drink).isEqualTo(localDrink)
-            // Si carga del local por fallo de red, pongo error = NoConnectionWithData
+
+            // Verificamos el error específico
             assertThat(fallbackState.error).isEqualTo(ErrorState.NoConnectionWithData)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `getRandomDrink emits Error NoConnectionWithoutData when API fails and Cache is empty`() = runTest {
+        // GIVEN
+        // 1. API falla con DELAY
+        coEvery { getRandomDrinkUseCase() } coAnswers {
+            delay(10)
+            throw RuntimeException("No Internet")
+        }
+
+        // 2. Cache vacía
+        coEvery { getLastViewedDrinkUseCase() } returns null
+
+        viewModel = DrinkViewModel(getRandomDrinkUseCase, getLastViewedDrinkUseCase)
+
+        viewModel.state.test {
+            awaitItem() // Inicial
+
+            viewModel.getRandomDrink() // Acción
+
+            val loadingState = awaitItem() // Loading
+            assertThat(loadingState.isLoading).isTrue()
+
+            // Estado final
+            val errorState = awaitItem()
+            assertThat(errorState.isLoading).isFalse()
+            assertThat(errorState.drink).isNull()
+            assertThat(errorState.error).isEqualTo(ErrorState.NoConnectionWithoutData)
 
             cancelAndIgnoreRemainingEvents()
         }

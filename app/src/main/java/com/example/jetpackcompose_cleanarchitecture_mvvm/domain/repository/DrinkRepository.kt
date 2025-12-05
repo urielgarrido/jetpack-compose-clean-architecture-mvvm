@@ -4,5 +4,5 @@ import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.model.Drink
 
 interface DrinkRepository {
     suspend fun getRandomDrink(): Drink
-    suspend fun getLastDrinkShowed(): Drink?
+    suspend fun getLastViewedDrink(): Drink?
 }
