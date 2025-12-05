@@ -82,8 +82,8 @@ class DrinkViewModelTest {
 
             assertThat(fallbackState.isLoading).isFalse()
             assertThat(fallbackState.drink).isEqualTo(localDrink)
-            // Si carga del local por fallo de red, pongo un mensaje en 'error'
-            assertThat(fallbackState.error).contains("Sin conexión")
+            // Si carga del local por fallo de red, pongo error = NoConnectionWithData
+            assertThat(fallbackState.error).isEqualTo(ErrorState.NoConnectionWithData)
 
             cancelAndIgnoreRemainingEvents()
         }
