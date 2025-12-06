@@ -1,6 +1,6 @@
 # 🍹 Cocktail App - Clean Architecture & Jetpack Compose
 
-![Kotlin](https://img.shields.io/badge/Kotlin-1.9.0-purple)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0.0-purple)
 ![Compose](https://img.shields.io/badge/Jetpack%20Compose-Material3-green)
 ![Architecture](https://img.shields.io/badge/Clean-Architecture-blue)
 ![Status](https://img.shields.io/badge/Maintained-Yes-brightgreen)
