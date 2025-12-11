@@ -1,21 +1,10 @@
 package com.example.jetpackcompose_cleanarchitecture_mvvm.data.mappers
 
 import com.example.jetpackcompose_cleanarchitecture_mvvm.data.local.entities.DrinkEntity
-import com.example.jetpackcompose_cleanarchitecture_mvvm.data.local.entities.SINGLE_DRINK_ID
 import com.example.jetpackcompose_cleanarchitecture_mvvm.data.remote.dto.DrinkDetailDto
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.model.Drink
 
-fun DrinkEntity.toDomain(): Drink {
-    return Drink(
-        name = name,
-        category = category,
-        instructions = instructions,
-        imageUrl = imageUrl,
-        ingredients = ingredients
-    )
-}
-
-fun setIngredientsList(drinkDetailDto: DrinkDetailDto): List<Pair<String, String>> {
+private fun setIngredientsList(drinkDetailDto: DrinkDetailDto): List<Pair<String, String>> {
     val ingredientsList = mutableListOf<Pair<String, String>>()
 
     with(drinkDetailDto) {
@@ -69,6 +58,16 @@ fun setIngredientsList(drinkDetailDto: DrinkDetailDto): List<Pair<String, String
     return ingredientsList
 }
 
+fun DrinkEntity.toDomain(): Drink {
+    return Drink(
+        name = name,
+        category = category,
+        instructions = instructions,
+        imageUrl = imageUrl,
+        ingredients = ingredients
+    )
+}
+
 fun DrinkDetailDto.toDomain(): Drink {
     return Drink(
         name = strDrink.orEmpty(),
@@ -79,13 +78,12 @@ fun DrinkDetailDto.toDomain(): Drink {
     )
 }
 
-fun DrinkDetailDto.toEntity(): DrinkEntity {
+fun Drink.toEntity(): DrinkEntity {
     return DrinkEntity(
-        id = SINGLE_DRINK_ID,
-        name = strDrink.orEmpty(),
-        category = strCategory.orEmpty(),
-        instructions = strInstructionsES ?: strInstructions.orEmpty(),
-        imageUrl = strDrinkThumb.orEmpty(),
-        ingredients = setIngredientsList(this)
+        name = name,
+        category = category,
+        instructions = instructions,
+        imageUrl = imageUrl,
+        ingredients = ingredients
     )
 }

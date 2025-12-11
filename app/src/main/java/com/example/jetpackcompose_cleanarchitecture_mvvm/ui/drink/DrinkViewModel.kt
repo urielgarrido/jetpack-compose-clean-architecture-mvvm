@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetLastViewedDrinkUseCase
 import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.GetRandomDrinkUseCase
+import com.example.jetpackcompose_cleanarchitecture_mvvm.domain.usecase.SaveDrinkLocallyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class DrinkViewModel @Inject constructor(
     private val getRandomDrinkUseCase: GetRandomDrinkUseCase,
-    private val getLastViewedDrink: GetLastViewedDrinkUseCase
+    private val getLastViewedDrinkUseCase: GetLastViewedDrinkUseCase,
+    private val saveDrinkLocallyUseCase: SaveDrinkLocallyUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DrinkState())
@@ -26,21 +28,25 @@ class DrinkViewModel @Inject constructor(
 
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
-            try {
+            runCatching {
                 val result = getRandomDrinkUseCase()
                 _state.update {
                     it.copy(isLoading = false, drink = result)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            }.onFailure {
+                it.printStackTrace()
                 loadLastDrinkFromCache()
             }
         }
     }
 
     private suspend fun loadLastDrinkFromCache() {
-        try {
-            val localDrink = getLastViewedDrink()
+        runCatching {
+            val localDrink = getLastViewedDrinkUseCase().also {
+                it?.let { drink ->
+                    saveDrinkLocallyUseCase(drink)
+                }
+            }
             if (localDrink != null) {
                 _state.update {
                     it.copy(
@@ -54,9 +60,9 @@ class DrinkViewModel @Inject constructor(
                     it.copy(isLoading = false, error = ErrorState.NoConnectionWithoutData)
                 }
             }
-        } catch (e: Exception) {
-            _state.update {
-                it.copy(
+        }.onFailure { e ->
+            _state.update { state ->
+                state.copy(
                     isLoading = false,
                     error = ErrorState.Unexpected(e.message.toString())
                 )

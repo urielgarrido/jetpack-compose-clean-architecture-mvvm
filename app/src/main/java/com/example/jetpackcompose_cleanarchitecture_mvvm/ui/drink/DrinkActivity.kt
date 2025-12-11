@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.jetpackcompose_cleanarchitecture_mvvm.ui.drink.screens.DrinkScreen
 import com.example.jetpackcompose_cleanarchitecture_mvvm.ui.theme.JetpackComposeCleanArchitectureMVVMTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,8 +20,11 @@ class DrinkActivity: ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             JetpackComposeCleanArchitectureMVVMTheme {
+                val drinkViewModel: DrinkViewModel = hiltViewModel()
                 DrinkScreen(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    drinkUIState = drinkViewModel.state.collectAsStateWithLifecycle().value,
+                    onGetRandomDrink = drinkViewModel::getRandomDrink
                 )
             }
         }
